@@ -18,6 +18,7 @@ type Book struct {
 var db *gorm.DB
 
 func main() {
+	// Connect to DB
 	var err error
 	db, err = gorm.Open(sqlite.Open("test.db"), &gorm.Config{})
 	if err != nil {
@@ -34,9 +35,11 @@ func main() {
 		})
 	})
 
+	//Routes
 	r.POST("/books", NewBook)
 	r.GET("/books", ListBook)
 	r.GET("/books/:id", GetBook)
+
 	r.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
 }
 
