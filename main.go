@@ -40,6 +40,7 @@ func main() {
 	r.GET("/books", ListBook)
 	r.GET("/books/:id", GetBook)
 	r.PUT("/books/:id", PutBook)
+	r.DELETE("/books/:id", DeleteBook)
 
 	r.Run("0.0.0.0:3030")
 }
@@ -60,9 +61,8 @@ func NewBook(c *gin.Context) {
 		})
 		return
 	}
-	c.JSON(http.StatusCreated, gin.H{
-		"result": &book,
-	})
+
+	c.JSON(http.StatusCreated, book)
 }
 
 func ListBook(c *gin.Context) {
@@ -137,8 +137,35 @@ func PutBook(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"result": &book,
-	})
+	c.JSON(http.StatusOK, book)
+}
 
+func DeleteBook(c *gin.Context) {
+	var book Book
+	id := c.Param("id")
+	n, err := strconv.Atoi(id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	data := db.First(&book, n)
+	if err := data.Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	result := db.Delete(&book)
+	if err := result.Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, book)
 }
