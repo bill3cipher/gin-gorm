@@ -39,8 +39,9 @@ func main() {
 	r.POST("/books", NewBook)
 	r.GET("/books", ListBook)
 	r.GET("/books/:id", GetBook)
+	r.PUT("/books/:id", PutBook)
 
-	r.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
+	r.Run("0.0.0.0:3030")
 }
 
 func NewBook(c *gin.Context) {
@@ -59,8 +60,9 @@ func NewBook(c *gin.Context) {
 		})
 		return
 	}
-
-	c.Status(http.StatusCreated)
+	c.JSON(http.StatusCreated, gin.H{
+		"result": &book,
+	})
 }
 
 func ListBook(c *gin.Context) {
@@ -96,5 +98,47 @@ func GetBook(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, book)
+
+}
+
+func PutBook(c *gin.Context) {
+	var book Book
+	id := c.Param("id")
+	//แปลง string > int
+	n, err := strconv.Atoi(id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	//หาว่ามีข้อมูลอยู่ในdbไหม
+	data := db.First(&book, n)
+	if err := data.Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	if err := c.Bind(&book); err != nil { //gin จะทำการbind json ให้เหมือนกับstructของเรา ถ้ามีปัญหาก็จะเข้าในifแล้วพ่น error มาในรูปแบบjson
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	result := db.Save(&book)
+	if err := result.Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"result": &book,
+	})
 
 }
