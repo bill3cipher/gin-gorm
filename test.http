@@ -2,8 +2,8 @@ POST http://localhost:3030/books
 Content-Type: application/json
 
 {
-    "name" : "nnn nnn",
-    "author": "nnn"
+    "name" : "new za",
+    "author": "newza"
 }
 
 ###
@@ -13,12 +13,12 @@ Content-Type: application/json
 
 ###
 
-GET http://localhost:3030/books/1
+GET http://localhost:3030/books/6
 Content-Type: application/json
 
 ###
 
-PUT  http://localhost:3030/books/1
+PUT  http://localhost:3030/books/3
 Content-Type: application/json
 
 {
@@ -27,3 +27,6 @@ Content-Type: application/json
 }
 
 ###
+
+DELETE   http://localhost:3030/books/1
+Content-Type: application/json
